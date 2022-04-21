@@ -8,6 +8,6 @@ mod test {
 
     #[test]
     fn test_add() {
-        assert_eq!(add(10, 20), 31);
+        assert_eq!(add(10, 20), 30);
     }
 }
