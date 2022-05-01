@@ -2,6 +2,8 @@
 name = "rustaman"
 version = "0.1.0"
 edition = "2021"
+description = "Just for ci test"
+license = "Apache-2.0"
 
 [dependencies]
 actix-web = "4"
