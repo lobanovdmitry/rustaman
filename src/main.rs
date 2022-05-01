@@ -40,7 +40,7 @@ mod tests {
         assert_eq!(resp.status(), http::StatusCode::OK);
 
         let response_body = resp.into_body();
-        assert_eq!(to_bytes(response_body).await.unwrap(), r##"Hello world!"##);
+        assert_eq!(to_bytes(response_body).await.unwrap(), r##"Hello world from AM!"##);
 
         Ok(())
     }
