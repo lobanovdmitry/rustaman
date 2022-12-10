@@ -24,4 +24,5 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: dist
-        path: target/release/rustaman
+        path: target/x86_64-unknown-linux-gnu/release/rustaman
+ 
