@@ -1,57 +1,35 @@
-use actix_web::{middleware, web, App, HttpRequest, HttpServer};
-use futures::stream::StreamExt;
+use std::process::{self};
 
-async fn index(req: HttpRequest, mut payload: web::Payload) -> &'static str {
-    println!("{:?}", req);
-    println!("Body: ");
-    while let Some(bytes) = payload.next().await {
-        let bytes = bytes.unwrap();
-        let str = String::from_utf8(bytes.to_vec()).unwrap();
-        println!("{}", str);
-    }
-    "Hello world from AM!"
-}
+use log::info;
 
-#[actix_web::main]
+use rustaman::config::app_config_loader::load_app_config;
+use rustaman::monitoring::monitoring_server as monitoring;
+use rustaman::web_server::web_server::WebServer;
+
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=info");
-    env_logger::init();
+    let app_config = match load_app_config() {
+        Ok(config) => {
+            println!("Loaded app_config: {:?}.", config);
+            config
+        }
+        Err(e) => {
+            eprintln!("{}", e);
+            process::exit(1)
+        }
+    };
 
-    let port = 8080;
+    // enable logger
+    println!(
+        "Loading logging config from file {}...",
+        app_config.log.config_file
+    );
+    log4rs::init_file(app_config.log.config_file, Default::default()).unwrap();
+    info!("Application has started!!!");
 
-    println!("Starting web server on port {} ...", port);
-    HttpServer::new(|| {
-        App::new()
-            // enable logger
-            .wrap(middleware::Logger::default())
-            .service(web::resource("/index.html").to(|| async { "Hello world!" }))
-            .service(web::resource("/").to(index))
-    })
-    .bind(("0.0.0.0", port))?
-    .run()
-    .await
-}
+    // start monitoring
+    monitoring::MonitoringServer::new(app_config.monitoring.port).start();
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use actix_web::body::to_bytes;
-    use actix_web::dev::Service;
-    use actix_web::{http, test, web, App, Error};
-
-    #[actix_web::test]
-    async fn test_index() -> Result<(), Error> {
-        let app = App::new().route("/", web::get().to(index));
-        let app = test::init_service(app).await;
-
-        let req = test::TestRequest::get().uri("/").to_request();
-        let resp = app.call(req).await.unwrap();
-
-        assert_eq!(resp.status(), http::StatusCode::OK);
-
-        let response_body = resp.into_body();
-        assert_eq!(to_bytes(response_body).await.unwrap(), r##"Hello world from AM!"##);
-
-        Ok(())
-    }
+    // start web server
+    WebServer::start(&app_config.web_server, &app_config.db).await
 }

@@ -1,0 +1,15 @@
+[log]
+config_file = "./log4rs.yaml"
+
+[db]
+host = "localhost"
+port = 5432
+username = "postgres"
+password = "example"
+db_name = "test_db"
+
+[monitoring]
+port = 8083
+
+[web_server]
+port = 8082
