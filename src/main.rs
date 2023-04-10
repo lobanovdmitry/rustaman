@@ -7,7 +7,7 @@ use rustaman::monitoring::monitoring_server as monitoring;
 use rustaman::web_server::web_server::WebServer;
 
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
+async fn main()  {
     // load app config
     let app_config = match load_app_config() {
         Ok(config) => {
@@ -25,14 +25,12 @@ async fn main() -> std::io::Result<()> {
     log4rs::init_file(app_config.log.config_file, Default::default()).unwrap();
 
     // start monitoring
-    info!("Starting monitoring server...");
     monitoring::MonitoringServer::new(app_config.monitoring.port).start();
 
     // start web server
-    info!("Starting web server ...");
     let web_server_jh = tokio::spawn(async move {
-        WebServer::start(&app_config.web_server, &app_config.db).await
+        WebServer::start(&app_config.web_server, &app_config.db).await.expect("Failure while running web server!")
     });
     info!("App has started!");
-    web_server_jh.await.expect("Failed to wait on join handle!")
+    web_server_jh.await.expect("Failed to wait on join handle!");
 }

@@ -15,6 +15,7 @@ pub struct WebServer {}
 
 impl WebServer {
     pub async fn start(config: &WebServerConfig, db_config: &DbConfig) -> std::io::Result<()> {
+        info!("Starting web server ...");
         let db_pool = db::db_pool::new_pg_pool(db_config);
         let clock = Clock {};
         let web_state = web_state::WebState {

@@ -4,7 +4,7 @@ appenders:
   stdout:
     kind: console
     encoder:
-      pattern: "{date(%Y-%m-%d %H:%M:%S.%f)} {level} [{thread}] {t} --> {message}{n}"
+      pattern: "{date(%Y-%m-%d %H:%M:%S.%f)} {level} [{thread:.>20.50}] {t:.>40.60}: {message}{n}"
 
 root:
   level: info

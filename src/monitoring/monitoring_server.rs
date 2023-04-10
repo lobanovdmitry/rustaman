@@ -28,6 +28,6 @@ impl MonitoringServer {
         let exporter = prometheus_exporter::start(binding)
             .expect(format!("Unable to start prometheus server in {socket_addr}").as_str());
         self.exporter = Some(exporter);
-        info!("Started monitoring server successfully: {socket_addr}.");
+        info!("Started monitoring server successfully.");
     }
 }
