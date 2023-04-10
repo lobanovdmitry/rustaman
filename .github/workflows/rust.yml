@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Prepare
+      run: cargo install diesel_cli --no-default-features --features postgres
     - name: Build
       run: RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --target x86_64-unknown-linux-gnu
     - name: Run tests
