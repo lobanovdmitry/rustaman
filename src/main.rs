@@ -8,6 +8,7 @@ use rustaman::web_server::web_server::WebServer;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    // load app config
     let app_config = match load_app_config() {
         Ok(config) => {
             println!("Loaded app_config: {:?}.", config);
@@ -20,16 +21,18 @@ async fn main() -> std::io::Result<()> {
     };
 
     // enable logger
-    println!(
-        "Loading logging config from file {}...",
-        app_config.log.config_file
-    );
+    println!("Loading logging config from file {}...", app_config.log.config_file);
     log4rs::init_file(app_config.log.config_file, Default::default()).unwrap();
-    info!("Application has started!!!");
 
     // start monitoring
+    info!("Starting monitoring server...");
     monitoring::MonitoringServer::new(app_config.monitoring.port).start();
 
     // start web server
-    WebServer::start(&app_config.web_server, &app_config.db).await
+    info!("Starting web server ...");
+    let web_server_jh = tokio::spawn(async move {
+        WebServer::start(&app_config.web_server, &app_config.db).await
+    });
+    info!("App has started!");
+    web_server_jh.await.expect("Failed to wait on join handle!")
 }
